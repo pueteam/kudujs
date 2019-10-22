@@ -1,0 +1,12 @@
+extends: airbnb-base
+
+parser: babel-eslint
+
+globals:
+  __DEBUG_SERVER_ERRORS__: true
+  __SERVER_ERRORS__: true
+  fabric: true
+
+env:
+  browser: false
+  node: true

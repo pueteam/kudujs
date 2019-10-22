@@ -1,0 +1,8 @@
+node_modules
+*.log
+build
+kudusrc
+package-lock.json
+.vscode
+sergio.keytab
+krb5.conf
