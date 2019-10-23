@@ -46,7 +46,7 @@ Napi::Value KuduJS::CreateTable(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
 
-  if (  info.Length() != 3 || !info[0].IsString()) {
+  if (  info.Length() != 5 || !info[0].IsString()) {
     Napi::TypeError::New(env, "Arguments missing").ThrowAsJavaScriptException();
     return Napi::Number::New(info.Env(), -1);
   }
@@ -54,13 +54,19 @@ Napi::Value KuduJS::CreateTable(const Napi::CallbackInfo& info) {
   Napi::String tableName = info[0].As<Napi::String>();
   Napi::Array schema = info[1].As<Napi::Array>();
   Napi::Number numTablets = info[2].As<Napi::Number>();
+  Napi::Number partitioning = info[3].As<Napi::Number>();
+  Napi::Array colNamesPartitioning = info[4].As<Napi::Array>();
   vector<KSchema> sc;
+  vector<string> columns;
   for (unsigned int i = 0; i < schema.Length(); i++) {
     Napi::Object value = schema.Get(i).ToObject();
     KSchema tmp = KSchema(value.Get("key").ToString(), value.Get("type").ToNumber(), value.Get("primaryKey").ToBoolean(), value.Get("notNull").ToBoolean());
     sc.push_back(tmp);
   }
-  this->actualClass_->CreateTable(tableName.ToString(), sc, numTablets.Int32Value());
+  for (unsigned int i = 0; i < colNamesPartitioning.Length(); i++) {
+    columns.push_back(colNamesPartitioning.Get(i).ToString());
+  }
+  this->actualClass_->CreateTable(tableName.ToString(), sc, numTablets.Int32Value(), partitioning.Int32Value(), columns);
 
   return Napi::Number::New(info.Env(), 0);
 }

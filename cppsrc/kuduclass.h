@@ -28,7 +28,7 @@ class KuduClass {
   KuduClass(vector<string> masters); //constructor
   string getValue(); //getter for the value
   string add(string toAdd); //adds the toAdd value to the value_
-  void CreateTable(string tableName, vector<KSchema> schema, int numTablets);
+  void CreateTable(string tableName, vector<KSchema> schema, int numTablets, int partitioning, vector<string>& columns);
   void DeleteTable(string tableName);
   Status InsertRow(const string tableName, const Napi::Object value);
   Status UpdateRow(const string tableName, const Napi::Object value);
@@ -42,6 +42,6 @@ class KuduClass {
   Status CreateClient(const vector<string>& master_addrs, shared_ptr<KuduClient>* client);
   KuduSchema CreateSchema(const vector<KSchema> schema);
   Status DoesTableExist(const shared_ptr<KuduClient>& client, const string& table_name, bool *exists);
-  Status CreateKuduTable(const shared_ptr<KuduClient>& client, const string& table_name, const KuduSchema& schema, int num_tablets);
+  Status CreateKuduTable(const shared_ptr<KuduClient>& client, const string& table_name, const KuduSchema& schema, int num_tablets, int partitioning, vector<string>& columns);
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "kudujs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "NodeJS addon for Apache Kudu",
   "main": "index.js",
   "gypfile": true,

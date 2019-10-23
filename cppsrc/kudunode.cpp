@@ -27,6 +27,11 @@ Napi::Object kudujs::Init(Napi::Env env, Napi::Object exports) {
     ComparisonOp.Set("LESS", 3);
     ComparisonOp.Set("GREATER", 4);
     exports.Set("ComparisonOp", ComparisonOp);
+    Napi::Object Partitioning = Napi::Object::New(env);
+    Partitioning.Set("RANGE", 0);
+    Partitioning.Set("HASH", 1);
+    Partitioning.Set("RANGEHASH", 2);
+    exports.Set("Partitioning", Partitioning);
     return exports;
 }
 

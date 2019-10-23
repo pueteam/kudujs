@@ -95,7 +95,7 @@ string KuduClass::add(string toAdd)
   return this->value_;
 }
 
-void KuduClass::CreateTable(string tableName, vector<KSchema> schema, int numTablets) {
+void KuduClass::CreateTable(string tableName, vector<KSchema> schema, int numTablets, int partitioning, vector<string>& columns) {
   KUDU_LOG(INFO) << "Creating a schema";
   KuduSchema sc(CreateSchema(schema));
   KUDU_LOG(INFO) << "Created a schema";
@@ -106,7 +106,7 @@ void KuduClass::CreateTable(string tableName, vector<KSchema> schema, int numTab
     this->client_->DeleteTable(tableName);
     KUDU_LOG(INFO) << "Deleting old table before creating new one";
   }
-  KUDU_CHECK_OK(CreateKuduTable(this->client_, tableName, sc, numTablets));
+  KUDU_CHECK_OK(CreateKuduTable(this->client_, tableName, sc, numTablets, partitioning, columns));
   KUDU_LOG(INFO) << "Created a table " + tableName;
 }
 
@@ -163,15 +163,22 @@ Status KuduClass::DoesTableExist(const shared_ptr<KuduClient>& client,
 Status KuduClass::CreateKuduTable(const shared_ptr<KuduClient>& client,
                           const string& table_name,
                           const KuduSchema& schema,
-                          int num_tablets) {
-  vector<string> column_names;
-  column_names.push_back("key");
+                          int num_tablets,
+                          int partitioning,
+                          vector<string>& column_names) {
 
   // Set the schema and range partition columns.
   KuduTableCreator* table_creator = client->NewTableCreator();
+  
   table_creator->table_name(table_name)
-      .schema(&schema)
-      .set_range_partition_columns(column_names);
+      .schema(&schema);
+  if (partitioning == 0) {
+    table_creator->set_range_partition_columns(column_names);
+  }
+
+  if (partitioning == 1) {
+    table_creator->add_hash_partitions(column_names, num_tablets);
+  }
 
   // Generate and add the range partition splits for the table.
   int32_t increment = 1000 / num_tablets;
