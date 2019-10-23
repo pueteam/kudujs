@@ -174,18 +174,17 @@ Status KuduClass::CreateKuduTable(const shared_ptr<KuduClient>& client,
       .schema(&schema);
   if (partitioning == 0) {
     table_creator->set_range_partition_columns(column_names);
+    // Generate and add the range partition splits for the table.
+    int32_t increment = 1000 / num_tablets;
+    for (int32_t i = 1; i < num_tablets; i++) {
+      KuduPartialRow* row = schema.NewRow();
+      KUDU_CHECK_OK(row->SetInt32(0, i * increment));
+      table_creator->add_range_partition_split(row);
+    }
   }
 
   if (partitioning == 1) {
     table_creator->add_hash_partitions(column_names, num_tablets);
-  }
-
-  // Generate and add the range partition splits for the table.
-  int32_t increment = 1000 / num_tablets;
-  for (int32_t i = 1; i < num_tablets; i++) {
-    KuduPartialRow* row = schema.NewRow();
-    KUDU_CHECK_OK(row->SetInt32(0, i * increment));
-    table_creator->add_range_partition_split(row);
   }
 
   Status s = table_creator->Create();
